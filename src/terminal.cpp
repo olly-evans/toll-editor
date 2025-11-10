@@ -14,10 +14,27 @@ void die(std::string error) {
     std::cerr << error << std::endl;
 }
 
-void disable_raw_mode() {
-    return;
+static struct termios old_t, new_t;
+
+void disable_raw_mode(void) {
+    /* Restore old terminal i/o settings */
+    tcsetattr(0, TCSANOW, &old_t);
 }
 
-void enable_raw_mode() {
-    return;
+void enable_raw_mode(void) {
+    if (tcgetattr(0, &old_t) == -1) die("enableRawMode() -> tcgetattr");
+    atexit(disable_raw_mode);
+
+
+    struct termios new_t = old_t;
+    new_t.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    new_t.c_oflag &= ~(OPOST);
+    new_t.c_cflag |= (CS8);
+    new_t.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+
+    new_t.c_cc[VMIN] = 0;
+    new_t.c_cc[VTIME] = 1;
+
+    if (tcsetattr(0, TCSAFLUSH, &new_t) == -1) die("enableRawMode() -> tcgetattr");
 }
+
