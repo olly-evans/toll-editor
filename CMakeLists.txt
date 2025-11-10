@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Add include directory for headers
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Only source files.
-add_executable(toll main.cpp editor.hpp)
+# Collect all source files from src/
+file(GLOB SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
+
+# Create the executable from source files
+add_executable(toll ${SOURCES})
