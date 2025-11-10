@@ -1,4 +1,5 @@
 #include <iostream>
+#include <termios.h>
 
 #define CLEAR_SCRN "\x1b[2J"
 #define CLEAR_SCROLLBACK_BUF "\x1b[3J"
@@ -11,4 +12,12 @@ void die(std::string error) {
     std::cout << CURSOR_HOME;
     std::cout << CLEAR_SCROLLBACK_BUF;
     std::cerr << error << std::endl;
+}
+
+void disable_raw_mode() {
+    return;
+}
+
+void enable_raw_mode() {
+    return;
 }
