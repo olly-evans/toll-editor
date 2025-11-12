@@ -1,20 +1,21 @@
 #include <iostream>
 #include <termios.h>
+#include <limits>
 
 #define CLEAR_SCRN "\x1b[2J"
 #define CLEAR_SCROLLBACK_BUF "\x1b[3J"
 
 #define CURSOR_HOME "\x1b[H"
 
-
 void die(std::string error) {
     std::cout << CLEAR_SCRN;
     std::cout << CURSOR_HOME;
     std::cout << CLEAR_SCROLLBACK_BUF;
     std::cerr << error << std::endl;
+    exit(EXIT_FAILURE);
 }
 
-static struct termios old_t, new_t;
+static struct termios old_t;
 
 void disable_raw_mode(void) {
     /* Restore old terminal i/o settings */
@@ -22,19 +23,37 @@ void disable_raw_mode(void) {
 }
 
 void enable_raw_mode(void) {
+    /* Set terminal to raw mode */
     if (tcgetattr(0, &old_t) == -1) die("enableRawMode() -> tcgetattr");
-    atexit(disable_raw_mode);
+    atexit(disable_raw_mode);    /* Restore old terminal i/o settings */
 
 
-    struct termios new_t = old_t;
-    new_t.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-    new_t.c_oflag &= ~(OPOST);
-    new_t.c_cflag |= (CS8);
-    new_t.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+    struct termios raw = old_t;
+    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    raw.c_oflag &= ~(OPOST);
+    raw.c_cflag |= (CS8);
+    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
 
-    new_t.c_cc[VMIN] = 0;
-    new_t.c_cc[VTIME] = 1;
+    raw.c_cc[VMIN] = 1;
+    raw.c_cc[VTIME] = 1;
 
-    if (tcsetattr(0, TCSAFLUSH, &new_t) == -1) die("enableRawMode() -> tcgetattr");
+    if (tcsetattr(0, TCSAFLUSH, &raw) == -1) die("enableRawMode() -> tcgetattr");
 }
 
+char read_key() {
+    char ch{}; 
+    
+    while (1) {
+        std::cin.get(ch); 
+        std::cout << "Key: " << ch << "\r\n"; 
+    }
+    return ch;
+}
+
+void process_key() {
+    char ch = read_key();
+    switch (ch) {
+        case 'r':
+            die("Exiting...");
+    }
+}

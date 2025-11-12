@@ -1,13 +1,9 @@
 #include <iostream>
 
-void die(std::string error);
-void enable_raw_mode();
+#include "terminal.hpp"
 
 int main(void) {
-  enable_raw_mode();
-
-  
-
-
-  return 0;
+    enable_raw_mode();
+    process_key();
+    return 0;
 }
