@@ -4,6 +4,8 @@
 
 int main(void) {
     enable_raw_mode();
-    process_key();
+    while (1) {
+        process_key();
+    }
     return 0;
 }
